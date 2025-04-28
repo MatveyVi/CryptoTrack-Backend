@@ -8,6 +8,6 @@ module.exports = class UserDto {
         this.name = model.name;
         this.email = model.email;
         this.id = model.id;
-        this.isActivated = model.id;
+        this.isActivated = model.isActivated;
     }
 }

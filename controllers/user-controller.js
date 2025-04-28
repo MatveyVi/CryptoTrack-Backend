@@ -3,6 +3,7 @@ const jdenticon = require('jdenticon')
 const path = require('path')
 const fs = require('fs')
 const { v4: uuidv4 } = require('uuid');
+const jwt = require('jsonwebtoken')
 
 const UserModel = require('../models/user-model')
 const UserDto = require('../dtos/user-dto')
@@ -11,9 +12,10 @@ const {handleServerError} = require('../utils/error-debug')
 
 const UserController = {
     register: async (req, res) => {
-        try {
-            const { email, password, name } = req.body
 
+        const { email, password, name } = req.body
+
+        try {
             if (!email || !password || !name) {
                 return res.status(400).json({
                     error: 'Все поля являются обязательными'
@@ -52,7 +54,33 @@ const UserController = {
         } catch (error) {
             handleServerError(res, error, 'register')
         }
-    }
+    },
+
+    login: async (req, res) => {
+        
+        const { email, password } = req.body
+
+        try {
+            const user = await UserModel.findOne({email})
+
+            if(!user) {
+                return res.status(400).json({ error: 'Неверный логин или пароль' })
+            }
+
+            const isPassValid = await bcrypt.compare(password, user.password)
+            if (!isPassValid) {
+                return res.status(400).json({ error: 'Неверный логин или пароль' })
+            }
+
+            const userDto = new UserDto(user)
+            const token = jwt.sign({...userDto}, process.env.JWT_SECRET)
+
+            res.send({user: userDto, token})
+
+        } catch (error) {
+            handleServerError(res, error, 'login')
+        }
+    },
 }
 
 module.exports = UserController

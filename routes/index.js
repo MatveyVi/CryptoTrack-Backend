@@ -6,6 +6,6 @@ const {
 } = require('../controllers')
 
 
-router.get('/current', UserController.register)
+router.get('/register', UserController.register)
 
 module.exports = router 

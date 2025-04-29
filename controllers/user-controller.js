@@ -7,11 +7,13 @@ const jwt = require('jsonwebtoken')
 
 const UserModel = require('../models/user-model')
 const UserDto = require('../dtos/user-dto')
-const {handleServerError} = require('../utils/error-debug')
+const GetByIdDto = require("../dtos/getById-dto");
+const {handleServerError} = require('../utils/error-debug');
+const MailController = require("./mail-controller");
 
 
-const UserController = {
-    register: async (req, res) => {
+class UserController {
+    async register(req, res) {
 
         const { email, password, name } = req.body
 
@@ -47,6 +49,8 @@ const UserController = {
                 avatarUrl: `/uploads/${avatarName}`
             })
 
+            await MailController.sendActivationMail(email, name, `${process.env.API_URL}/api/activate/${activationLink}`)
+
             const userDto = new UserDto(user)
 
             res.send({user: userDto})
@@ -54,9 +58,9 @@ const UserController = {
         } catch (error) {
             handleServerError(res, error, 'register')
         }
-    },
+    }
 
-    login: async (req, res) => {
+    async login(req, res) {
         
         const { email, password } = req.body
 
@@ -66,7 +70,9 @@ const UserController = {
             if(!user) {
                 return res.status(400).json({ error: 'Неверный логин или пароль' })
             }
-
+            if(!user.isActivated) {
+                return res.status(400).json({ error: 'Вам нужно активировать аккаунт из сообщения на почте'})
+            }
             const isPassValid = await bcrypt.compare(password, user.password)
             if (!isPassValid) {
                 return res.status(400).json({ error: 'Неверный логин или пароль' })
@@ -80,7 +86,31 @@ const UserController = {
         } catch (error) {
             handleServerError(res, error, 'login')
         }
-    },
+    }
+    async getUserById(req, res) {
+        const { id } = req.params;
+        try {
+            const user = await UserModel.findOne({_id: id})
+            const userDto = new GetByIdDto(user)
+
+            res.send(userDto)
+        } catch (error) {
+            handleServerError(res, error, 'getUserById')
+        }
+    }
+    async activate(req, res) {
+        const { link } = req.params;
+
+        const user = await UserModel.findOne({activationLink: link})
+        if (!user) {
+            return res.status(404).json({ error: 'Пользователь не найден' })
+        }
+        
+
+        user.isActivated = true;
+        await user.save()
+        res.redirect(process.env.CLIENT_URL + '/login')
+    }
 }
 
-module.exports = UserController
+module.exports = new UserController()

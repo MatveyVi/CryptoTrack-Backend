@@ -111,6 +111,9 @@ class UserController {
         await user.save()
         res.redirect(process.env.CLIENT_URL + '/login')
     }
+    async current(req, res) {
+        
+    }
 }
 
 module.exports = new UserController()

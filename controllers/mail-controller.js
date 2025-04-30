@@ -1,25 +1,24 @@
 const nodemailer = require('nodemailer')
 
 class MailController {
-    constructor() {
-        this.transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST,
-            port: process.env.SMTP_PORT,
-            secure: false,
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASSWORD,
-        }
-        })
-    }
+  constructor() {
+    this.transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      secure: true, 
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    })
+  }
 
-    async sendActivationMail(to, name, link) {
-        await this.transporter.sendMail({
-            from: process.env.SMTP_USER,
-            to,
-            subject: `Активация аккаунта на CryptoTrack`,
-            text: '',
-            html: `
+  async sendActivationMail(to, name, link) {
+    await this.transporter.sendMail({
+      from: `"CryptoTrack" <${process.env.SMTP_USER}>`,
+      to,
+      subject: `Активация аккаунта на CryptoTrack`,
+      html: `
     <html>
       <head>
         <style>
@@ -104,10 +103,8 @@ class MailController {
       </body>
     </html>
     `
-
-        
-        })
-    }
+    })
+  }
 }
 
 module.exports = new MailController()

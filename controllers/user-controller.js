@@ -99,20 +99,35 @@ class UserController {
         }
     }
     async activate(req, res) {
-        const { link } = req.params;
+        try {
+            const { link } = req.params;
 
-        const user = await UserModel.findOne({activationLink: link})
-        if (!user) {
-            return res.status(404).json({ error: 'Пользователь не найден' })
+            const user = await UserModel.findOne({activationLink: link})
+            if (!user) {
+                return res.status(404).json({ error: 'Пользователь не найден' })
+            }
+            
+    
+            user.isActivated = true;
+            await user.save()
+            res.redirect(process.env.CLIENT_URL + '/login')
+
+        } catch (error) {
+            handleServerError(res, error, 'activate')
         }
-        
-
-        user.isActivated = true;
-        await user.save()
-        res.redirect(process.env.CLIENT_URL + '/login')
     }
     async current(req, res) {
-        
+        try {
+            const user = await UserModel.findOne({_id: req.user.id})
+
+            if(!user) {
+                return res.status(400),json({ error: 'Не удалось найти пользователя' })
+            }
+
+            res.send(user)
+        } catch(error) {
+            handleServerError(res, error, 'current')
+        }
     }
 }
 

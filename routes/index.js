@@ -12,9 +12,9 @@ router.post('/login', UserController.login)
 router.post('/update/:id', authCheck, UserController.updateUser)
 router.get('/users/:id', authCheck, UserController.getUserById)
 router.get('/activate/:link', UserController.activate)
+router.get('/current', authCheck, UserController.current)
 //router.post('/logout', UserController.)
-//router.get('/activate/:link', UserController.)
-//router.get('/current', UserController.)
 
-
+// CoinGecko API
+router.get('/getData', UserController.getData)
 module.exports = router 

@@ -8,7 +8,9 @@ const jwt = require('jsonwebtoken')
 const UserModel = require('../models/user-model')
 const UserDto = require('../dtos/user-dto')
 const { handleServerError } = require('../utils/error-debug');
-const MailController = require("./mail-controller");
+// const MailController = require("./mail-controller");
+// const CoinGecko = require('./CoinGecko-controller');
+const { MailController, CoinGecko } = require('.')
 
 
 class UserController {
@@ -148,6 +150,9 @@ class UserController {
         } catch (error) {
             handleServerError(res, error, 'updateUser')
         }
+    }
+    async getData(req, res) {
+        const data = await CoinGecko.get(res)
     }
 }
 module.exports = new UserController()

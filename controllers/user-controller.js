@@ -59,7 +59,6 @@ class UserController {
             handleServerError(res, error, 'register')
         }
     }
-
     async login(req, res) {
         
         const { email, password } = req.body

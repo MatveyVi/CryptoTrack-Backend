@@ -11,6 +11,14 @@ class MailController {
         pass: process.env.SMTP_PASSWORD,
       },
     })
+    this.transporter.verify((error, success) => {
+      if (error) {
+        console.error('SMTP Error:', error)
+      } else {
+        console.log('SMTP connection success:', success)
+      }
+    })
+    
   }
 
   async sendActivationMail(to, name, link) {

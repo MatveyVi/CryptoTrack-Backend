@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const { 
   UserController, 
-
+  CoinGecko
 } = require('../controllers')
 const { authCheck } = require('../middleware/auth')
 
@@ -15,6 +15,5 @@ router.get('/activate/:link', UserController.activate)
 router.get('/current', authCheck, UserController.current)
 //router.post('/logout', UserController.)
 
-// CoinGecko API
-router.get('/getData', UserController.getData)
+
 module.exports = router 

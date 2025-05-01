@@ -22,7 +22,8 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use('/api', require('./routes'))
+app.use('/api', require('./routes/user-router'))
+app.use('/api/coin', require('./routes/coin-router'))
 
 
 // catch 404 and forward to error handler

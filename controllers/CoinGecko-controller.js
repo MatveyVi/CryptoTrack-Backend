@@ -1,9 +1,14 @@
-const axios = require('axios')
+const CoinService = require('../service/coin-service')
+const { handleServerError } = require('../utils/error-debug')
 
 class CoinGecko {
-    async get(res) {
-        const response = await axios.get(`https://api.coingecko.com/api/v3/ping?x_cg_demo_api_key=${process.env.COINGECKO_KEY}`)
-        res.send(response.data)
+    async getTopCoins(req, res) {
+        try {
+            const data = await CoinService.getTopCoins()
+            res.json(data)
+        } catch (error) {
+            handleServerError(res, error, 'getTopCoins')
+        }
     }
 }
 module.exports = new CoinGecko()

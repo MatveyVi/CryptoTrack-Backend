@@ -9,6 +9,7 @@ const { authCheck } = require('../middleware/auth')
 //Auth + current endpoints
 router.post('/register', UserController.register)
 router.post('/login', UserController.login)
+router.post('/update/:id', authCheck, UserController.updateUser)
 router.get('/users/:id', authCheck, UserController.getUserById)
 router.get('/activate/:link', UserController.activate)
 //router.post('/logout', UserController.)

@@ -7,8 +7,7 @@ const jwt = require('jsonwebtoken')
 
 const UserModel = require('../models/user-model')
 const UserDto = require('../dtos/user-dto')
-const GetByIdDto = require("../dtos/getById-dto");
-const {handleServerError} = require('../utils/error-debug');
+const { handleServerError } = require('../utils/error-debug');
 const MailController = require("./mail-controller");
 
 
@@ -42,10 +41,10 @@ class UserController {
 
 
             const user = await UserModel.create({
-                name, 
-                email, 
-                password: hashedPass, 
-                activationLink, 
+                name,
+                email,
+                password: hashedPass,
+                activationLink,
                 avatarUrl: `/uploads/${avatarName}`
             })
 
@@ -53,24 +52,24 @@ class UserController {
 
             const userDto = new UserDto(user)
 
-            res.send({user: userDto})
+            res.send({ user: userDto })
 
         } catch (error) {
             handleServerError(res, error, 'register')
         }
     }
     async login(req, res) {
-        
+
         const { email, password } = req.body
 
         try {
-            const user = await UserModel.findOne({email})
+            const user = await UserModel.findOne({ email })
 
-            if(!user) {
+            if (!user) {
                 return res.status(400).json({ error: 'Неверный логин или пароль' })
             }
-            if(!user.isActivated) {
-                return res.status(400).json({ error: 'Вам нужно активировать аккаунт из сообщения на почте'})
+            if (!user.isActivated) {
+                return res.status(400).json({ error: 'Вам нужно активировать аккаунт из сообщения на почте' })
             }
             const isPassValid = await bcrypt.compare(password, user.password)
             if (!isPassValid) {
@@ -78,9 +77,9 @@ class UserController {
             }
 
             const userDto = new UserDto(user)
-            const token = jwt.sign({...userDto}, process.env.JWT_SECRET)
+            const token = jwt.sign({ ...userDto }, process.env.JWT_SECRET)
 
-            res.send({user: userDto, token})
+            res.send({ user: userDto, token })
 
         } catch (error) {
             handleServerError(res, error, 'login')
@@ -89,8 +88,8 @@ class UserController {
     async getUserById(req, res) {
         const { id } = req.params;
         try {
-            const user = await UserModel.findOne({_id: id})
-            const userDto = new GetByIdDto(user)
+            const user = await UserModel.findOne({ _id: id })
+            const userDto = new UserDto(user)
 
             res.send(userDto)
         } catch (error) {
@@ -101,12 +100,12 @@ class UserController {
         try {
             const { link } = req.params;
 
-            const user = await UserModel.findOne({activationLink: link})
+            const user = await UserModel.findOne({ activationLink: link })
             if (!user) {
                 return res.status(404).json({ error: 'Пользователь не найден' })
             }
-            
-    
+
+
             user.isActivated = true;
             await user.save()
             res.redirect(process.env.CLIENT_URL + '/login')
@@ -117,17 +116,38 @@ class UserController {
     }
     async current(req, res) {
         try {
-            const user = await UserModel.findOne({_id: req.user.id})
+            const user = await UserModel.findOne({ _id: req.user.id })
 
-            if(!user) {
-                return res.status(400),json({ error: 'Не удалось найти пользователя' })
+            if (!user) {
+                return res.status(400), json({ error: 'Не удалось найти пользователя' })
             }
 
             res.send(user)
-        } catch(error) {
+        } catch (error) {
             handleServerError(res, error, 'current')
         }
     }
+    async updateUser(req, res) {
+        const { id } = req.params
+        const { email, name, bio, location } = req.body
+        if(req.user.id !== id) {
+            return res.status(403).json({ error: 'Нет доступа' })
+        }
+        try {
+            const user = await UserModel.findByIdAndUpdate(
+                {_id: id},
+                {
+                    email: email || undefined,
+                    name: name || undefined,
+                    bio: bio || undefined,
+                    location: location || undefined,
+                }
+            )
+            const userDto = new UserDto(user)
+            res.send(userDto)
+        } catch (error) {
+            handleServerError(res, error, 'updateUser')
+        }
+    }
 }
-
 module.exports = new UserController()

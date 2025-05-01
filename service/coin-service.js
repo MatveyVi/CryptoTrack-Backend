@@ -1,10 +1,10 @@
 const axios = require('axios')
 const constants = require('../utils/constants/constants')
+const { handleServerError } = require('../utils/error-debug')
 
 class CoinService {
     async getTopCoins() {
         try {
-            console.log(`${constants.COINGECKO_BASEURL}/coins/markets`)
             const response = await axios.get(`${constants.COINGECKO_BASEURL}/coins/markets`, {
                 params: {
                     vs_currency: 'usd',
@@ -17,9 +17,27 @@ class CoinService {
             return response.data
 
         } catch (error) {
-            //console.log('Error fetching top coins:', error.response ? error.response.data : error.message);
+            throw error
         }
         
+    }
+    async getCoinById(id) {
+        try {
+            const response = await axios.get(`${constants.COINGECKO_BASEURL}/coins/${id}`, {
+                params: {
+                    localization: false,
+                    tickers: false,
+                    market_data: true,
+                    community_data: false,
+                    developer_data: false,
+                    sparkline: false
+                }
+            })
+            return response.data
+
+        } catch (error) {
+            throw error
+        }
     }
 }
 

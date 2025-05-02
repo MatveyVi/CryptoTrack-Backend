@@ -29,5 +29,13 @@ class CoinGecko {
             handleServerError(res, error, 'getCoinChart')
         }
     }
+    async getTranding(req, res) {
+        try {
+            const data = await CoinService.getTranding()
+            res.send(data)
+        } catch (error) {
+            handleServerError(res, error, 'getTranding')
+        }
+    }   
 }
 module.exports = new CoinGecko()

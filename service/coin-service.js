@@ -12,14 +12,14 @@ class CoinService {
                     per_page: 30, // 30 монет на странице
                     page: 1,      // первая страница
                     sparkline: false
-                  }
+                }
             })
             return response.data
 
         } catch (error) {
             throw error
         }
-        
+
     }
     async getCoinById(id) {
         try {
@@ -46,7 +46,7 @@ class CoinService {
                 ath: response.data.market_data.ath.usd,
                 atl: response.data.market_data.atl.usd,
                 last_updated: response.data.market_data.last_updated,
-    }
+            }
 
         } catch (error) {
             throw error
@@ -61,6 +61,21 @@ class CoinService {
                 }
             })
             return response.data.prices
+        } catch (error) {
+            throw error
+        }
+    }
+    async getTranding() {
+        try {
+            const response = await axios.get(`${constants.COINGECKO_BASEURL}/search/trending`, {
+                params: {
+                    vs_currency: 'usd',
+                    order: 'market_cap_desc',
+                    per_page: 15,
+                    page: 1
+                }
+            })
+            return response.data
         } catch (error) {
             throw error
         }

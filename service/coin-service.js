@@ -35,15 +35,8 @@ class CoinService {
     }
     async getTranding() {
         try {
-            const response = await axios.get(`${constants.COINGECKO_BASEURL}/search/trending`, {
-                params: {
-                    vs_currency: 'usd',
-                    order: 'market_cap_desc',
-                    per_page: 15,
-                    page: 1
-                }
-            })
-            return response.data
+            
+            return await CoinDbService.getTranding()
         } catch (error) {
             throw error
         }
@@ -57,6 +50,15 @@ setInterval(async () => {
     try {
         await CoinDbService.updatePopular()
     } catch (error) {
-        console.error('Ошибка при обновлении монет', error.message)
+        console.error('Ошибка при обновлении top монет', error.message)
     }
-}, 20 * 1000)
+}, 3 * 1000) // once in 20 sec
+
+setInterval(async () => {
+    try {
+        await CoinDbService.updateTrending()
+    } catch (error) {
+        console.error('Ошибка при обновлении trending монет', error.message)
+    }
+}, 5 * 1000) // once in 60 sec(for now) then switch to --> once/15min
+

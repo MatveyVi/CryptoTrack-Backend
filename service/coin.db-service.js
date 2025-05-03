@@ -33,8 +33,8 @@ class CoinDbService {
                             total_volume: coin.total_volume,
                             price_change_percentage_24h: coin.price_change_percentage_24h,
                             last_updated: new Date(),
-                            tags: ['top100']
-                        }
+                        }, 
+                        $addToSet: { tags: 'trending' }
                     },
                     upsert: true
                 }
@@ -55,8 +55,8 @@ class CoinDbService {
     }
     async getCoinById(id) {
         try {
-            const token = await CoinModel.findOne({id})
-            if (token && token.updatedAt){
+            const token = await CoinModel.findOne({ id })
+            if (token && token.updatedAt) {
                 const timeFresh = 20 * 1000
                 const isFresh = (Date.now() - token.updatedAt.getTime()) < timeFresh
                 if (isFresh) {
@@ -75,9 +75,9 @@ class CoinDbService {
                 }
             })
             await CoinModel.findOneAndUpdate(
-                { id: response.data.id},
-                { $set: response.data},
-                { upsert: true}
+                { id: response.data.id },
+                { $set: response.data },
+                { upsert: true }
             )
             console.log('Data from API')
             return {
@@ -94,7 +94,57 @@ class CoinDbService {
                 atl: response.data.market_data.atl.usd,
                 last_updated: response.data.market_data.last_updated,
             }
-        } catch (error) {   
+        } catch (error) {
+            throw error
+        }
+    }
+    async updateTrending() {
+        try {
+            await CoinModel.deleteMany({
+                tags: { $size: 1, $all: ['trending'] }
+              })
+            const response = await axios.get(`${constants.COINGECKO_BASEURL}/search/trending`, {
+                params: {
+                    vs_currency: 'usd',
+                    order: 'market_cap_desc',
+                    per_page: 15,
+                    page: 1
+                }
+            })
+            const rawCoins = response.data.coins
+            const coins = rawCoins.map(c => c.item) // из-за отличий структуры получаемых данных в отличае от updatePopular
+
+            const operations = coins.map((coin) => ({
+                updateOne: {
+                    filter: { id: coin.id },
+                    update: {
+                        $set: {
+                            symbol: coin.symbol,
+                            name: coin.name,
+                            image: coin.image,
+                            current_price: coin.current_price,
+                            market_cap: coin.market_cap,
+                            market_cap_rank: coin.market_cap_rank,
+                            total_volume: coin.total_volume,
+                            price_change_percentage_24h: coin.price_change_percentage_24h,
+                            last_updated: new Date(),
+                        }, 
+                        $addToSet: { tags: 'trending' }
+                    },
+                    upsert: true
+                }
+            }))
+
+            await CoinModel.bulkWrite(operations)
+            console.log('Trending обновлены')
+        } catch (error) {
+            throw error
+        }
+    }
+    async getTranding() {
+        try {
+
+        } catch (error) {
             throw error
         }
     }

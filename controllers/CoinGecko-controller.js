@@ -31,7 +31,7 @@ class CoinGecko {
     }
     async getTranding(req, res) {
         try {
-            const data = await CoinService.getTranding()
+            const data = await CoinService.updateTrending()
             res.send(data)
         } catch (error) {
             handleServerError(res, error, 'getTranding')

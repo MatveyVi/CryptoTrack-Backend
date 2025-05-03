@@ -33,10 +33,9 @@ class CoinService {
             throw error
         }
     }
-    async getTranding() {
+    async getTrending() {
         try {
-            
-            return await CoinDbService.getTranding()
+            return await CoinDbService.getTrending()
         } catch (error) {
             throw error
         }

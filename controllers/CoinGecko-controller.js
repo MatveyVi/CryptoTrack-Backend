@@ -29,12 +29,12 @@ class CoinGecko {
             handleServerError(res, error, 'getCoinChart')
         }
     }
-    async getTranding(req, res) {
+    async getTrending(req, res) {
         try {
-            const data = await CoinService.updateTrending()
+            const data = await CoinService.getTrending()
             res.send(data)
         } catch (error) {
-            handleServerError(res, error, 'getTranding')
+            handleServerError(res, error, 'getTrending')
         }
     }   
 }

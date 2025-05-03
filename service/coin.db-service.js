@@ -34,7 +34,7 @@ class CoinDbService {
                             price_change_percentage_24h: coin.price_change_percentage_24h,
                             last_updated: new Date(),
                         }, 
-                        $addToSet: { tags: 'trending' }
+                        $addToSet: { tags: 'top100' }
                     },
                     upsert: true
                 }
@@ -141,9 +141,11 @@ class CoinDbService {
             throw error
         }
     }
-    async getTranding() {
+    async getTrending() {
         try {
-
+            const trending = await CoinModel.find({ tags: 'trending' })
+            console.log(trending.length)
+            return trending
         } catch (error) {
             throw error
         }

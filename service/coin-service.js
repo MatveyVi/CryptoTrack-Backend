@@ -1,21 +1,13 @@
 const axios = require('axios')
 const constants = require('../utils/constants/constants')
 const { handleServerError } = require('../utils/error-debug')
+const CoinDbService = require('./coin.db-service')
+
 
 class CoinService {
     async getTopCoins() {
         try {
-            const response = await axios.get(`${constants.COINGECKO_BASEURL}/coins/markets`, {
-                params: {
-                    vs_currency: 'usd',
-                    order: 'market_cap_desc',
-                    per_page: 30, // 30 монет на странице
-                    page: 1,      // первая страница
-                    sparkline: false
-                }
-            })
-            return response.data
-
+            return await CoinDbService.getTopCoins(30)
         } catch (error) {
             throw error
         }
@@ -83,3 +75,11 @@ class CoinService {
 }
 
 module.exports = new CoinService()
+
+setInterval(async () => {
+    try {
+        await CoinDbService.updatePopular()
+    } catch (error) {
+        console.error('Ошибка при обновлении монет', error.message)
+    }
+}, 20 * 1000)

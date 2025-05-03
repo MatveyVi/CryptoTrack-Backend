@@ -4,7 +4,7 @@ const CoinSchema = new Schema({
     id: { type: String, required: true, unique: true },
     symbol: String,
     name: String,
-    image: String,
+    image: Schema.Types.Mixed,
     current_price: Number,
     market_cap: Number,
     market_cap_rank: Number,

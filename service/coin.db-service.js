@@ -53,6 +53,51 @@ class CoinDbService {
             throw error
         }
     }
+    async getCoinById(id) {
+        try {
+            const token = await CoinModel.findOne({id})
+            if (token && token.updatedAt){
+                const timeFresh = 20 * 1000
+                const isFresh = (Date.now() - token.updatedAt.getTime()) < timeFresh
+                if (isFresh) {
+                    console.log('Data from DB')
+                    return token
+                }
+            }
+            const response = await axios.get(`${constants.COINGECKO_BASEURL}/coins/${id}`, {
+                params: {
+                    localization: false,
+                    tickers: false,
+                    market_data: true,
+                    community_data: false,
+                    developer_data: false,
+                    sparkline: false
+                }
+            })
+            await CoinModel.findOneAndUpdate(
+                { id: response.data.id},
+                { $set: response.data},
+                { upsert: true}
+            )
+            console.log('Data from API')
+            return {
+                id: response.data.id,
+                symbol: response.data.symbol,
+                name: response.data.name,
+                image: response.data.image.large,
+                description: response.data.description.en,
+                current_price: response.data.market_data.current_price.usd,
+                market_cap: response.data.market_data.market_cap.usd,
+                price_change_24h: response.data.market_data.price_change_24h,
+                price_change_percentage_24h: response.data.market_data.price_change_percentage_24h,
+                ath: response.data.market_data.ath.usd,
+                atl: response.data.market_data.atl.usd,
+                last_updated: response.data.market_data.last_updated,
+            }
+        } catch (error) {   
+            throw error
+        }
+    }
 }
 
 module.exports = new CoinDbService()

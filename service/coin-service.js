@@ -15,31 +15,7 @@ class CoinService {
     }
     async getCoinById(id) {
         try {
-            const response = await axios.get(`${constants.COINGECKO_BASEURL}/coins/${id}`, {
-                params: {
-                    localization: false,
-                    tickers: false,
-                    market_data: true,
-                    community_data: false,
-                    developer_data: false,
-                    sparkline: false
-                }
-            })
-            return {
-                id: response.data.id,
-                symbol: response.data.symbol,
-                name: response.data.name,
-                image: response.data.image.large,
-                description: response.data.description.en,
-                current_price: response.data.market_data.current_price.usd,
-                market_cap: response.data.market_data.market_cap.usd,
-                price_change_24h: response.data.market_data.price_change_24h,
-                price_change_percentage_24h: response.data.market_data.price_change_percentage_24h,
-                ath: response.data.market_data.ath.usd,
-                atl: response.data.market_data.atl.usd,
-                last_updated: response.data.market_data.last_updated,
-            }
-
+            return await CoinDbService.getCoinById(id)
         } catch (error) {
             throw error
         }
@@ -75,6 +51,7 @@ class CoinService {
 }
 
 module.exports = new CoinService()
+
 
 setInterval(async () => {
     try {

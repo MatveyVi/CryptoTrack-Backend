@@ -22,13 +22,7 @@ class CoinService {
     }
     async getCoinChart(id, days = '1') {
         try {
-            const response = await axios.get(`${constants.COINGECKO_BASEURL}/coins/${id}/market_chart`, {
-                params: {
-                    vs_currency: 'usd',
-                    days: days
-                }
-            })
-            return response.data.prices
+            return await CoinDbService.getCoinChart(id, days)
         } catch (error) {
             throw error
         }
@@ -51,7 +45,7 @@ setInterval(async () => {
     } catch (error) {
         console.error('Ошибка при обновлении top монет', error.message)
     }
-}, 3 * 1000) // once in 20 sec
+}, 20 * 1000) // once in 20 sec
 
 setInterval(async () => {
     try {
@@ -59,5 +53,5 @@ setInterval(async () => {
     } catch (error) {
         console.error('Ошибка при обновлении trending монет', error.message)
     }
-}, 5 * 1000) // once in 60 sec(for now) then switch to --> once/15min
+}, 15 * 60 * 1000) // once in 60 sec(for now) then switch to --> once/15min
 

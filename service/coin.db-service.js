@@ -1,6 +1,23 @@
 const CoinModel = require('../models/coin-model')
+const ChartModel = require('../models/chart-model')
 const axios = require('axios')
 const constants = require('../utils/constants/constants')
+
+const freshnessByInterval = {
+    '1d': 15 * 60 * 1000,
+    '7d': 1 * 60 * 60 * 1000,
+    '30d': 0.5 * 24 * 60 * 60 * 1000,
+    '90d': 1 * 24 * 60 * 60 * 1000,
+    '1y': 2 * 24 * 60 * 60 * 1000,
+}
+const daysToInterval = {
+    1: '1d',
+    7: '7d',
+    30: '30d',
+    90: '90d',
+    365: '1y',
+}
+
 
 class CoinDbService {
     async updatePopular() {
@@ -33,7 +50,7 @@ class CoinDbService {
                             total_volume: coin.total_volume,
                             price_change_percentage_24h: coin.price_change_percentage_24h,
                             last_updated: new Date(),
-                        }, 
+                        },
                         $addToSet: { tags: 'top100' }
                     },
                     upsert: true
@@ -102,7 +119,7 @@ class CoinDbService {
         try {
             await CoinModel.deleteMany({
                 tags: { $size: 1, $all: ['trending'] }
-              })
+            })
             const response = await axios.get(`${constants.COINGECKO_BASEURL}/search/trending`, {
                 params: {
                     vs_currency: 'usd',
@@ -128,7 +145,7 @@ class CoinDbService {
                             total_volume: coin.total_volume,
                             price_change_percentage_24h: coin.price_change_percentage_24h,
                             last_updated: new Date(),
-                        }, 
+                        },
                         $addToSet: { tags: 'trending' }
                     },
                     upsert: true
@@ -146,6 +163,49 @@ class CoinDbService {
             const trending = await CoinModel.find({ tags: 'trending' })
             console.log(trending.length)
             return trending
+        } catch (error) {
+            throw error
+        }
+    }
+    async getCoinChart(id, days) {
+        try {
+            const interval = daysToInterval[days]
+            const token = await ChartModel.findOne({ coinId: id, interval })
+            // console.log(token)
+            if (token && token.updatedAt) {
+                const freshnessLimit = freshnessByInterval[interval]
+                console.log(freshnessLimit)
+                const isFresh = (Date.now() - token.updatedAt.getTime()) < freshnessLimit
+                if (isFresh) {
+                    console.log('Data from DB')
+                    return token
+                }
+            }
+            const response = await axios.get(`${constants.COINGECKO_BASEURL}/coins/${id}/market_chart`, {
+                params: {
+                    vs_currency: 'usd',
+                    days
+                }
+            })
+            if (!interval) {
+                throw new Error(`Unsupported days value: ${days}`)
+            }
+            const ChartData = {
+                coinId: id,
+                interval,
+                prices: response.data.prices,
+                market_caps: response.data.market_caps,
+                total_volumes: response.data.total_volumes,
+                updatedAt: new Date()
+            }
+            await ChartModel.findOneAndUpdate(
+                { coinId: id, interval },
+                { $set: ChartData },
+                { upsert: true }
+            )
+            console.log('Data from API')
+
+            return response.data
         } catch (error) {
             throw error
         }

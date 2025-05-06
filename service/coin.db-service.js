@@ -171,10 +171,8 @@ class CoinDbService {
         try {
             const interval = daysToInterval[days]
             const token = await ChartModel.findOne({ coinId: id, interval })
-            // console.log(token)
             if (token && token.updatedAt) {
-                const freshnessLimit = freshnessByInterval[interval]
-                console.log(freshnessLimit)
+                const freshnessLimit = freshnessByInterval[days]
                 const isFresh = (Date.now() - token.updatedAt.getTime()) < freshnessLimit
                 if (isFresh) {
                     console.log('Data from DB')

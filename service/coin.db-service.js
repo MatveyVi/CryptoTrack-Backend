@@ -69,10 +69,22 @@ class CoinDbService {
     }
   }
 
-  async getTopCoins(num) {
+  async getTopCoins(page, limit) {
     try {
-      const coins = await CoinModel.find({ tags: 'top100' }).sort({ market_cap_rank: 1 }).limit(num);
-      return coins.map(mapCoinData);
+      const skip = (page - 1) * limit
+      const coins = await CoinModel
+      .find({ tags: 'top100' })
+      .sort({ market_cap_rank: 1 })
+      .skip(skip)
+      .limit(limit);
+      const total = await CoinModel.countDocuments({tags: 'top100'})
+      
+      return {
+        data: coins.map(mapCoinData),
+        //total,
+        //page,
+        //totalPages: Math.ceil(total / limit)
+      }
     } catch (error) {
       throw error;
     }

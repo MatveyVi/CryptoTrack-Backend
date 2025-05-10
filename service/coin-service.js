@@ -5,9 +5,9 @@ const CoinDbService = require('./coin.db-service')
 
 
 class CoinService {
-    async getTopCoins() {
+    async getTopCoins(page, limit) {
         try {
-            return await CoinDbService.getTopCoins(30)
+            return await CoinDbService.getTopCoins(page, limit)
         } catch (error) {
             throw error
         }

@@ -4,8 +4,10 @@ const { handleServerError } = require('../utils/error-debug')
 class CoinGecko {
     async getTopCoins(req, res) {
         try {
-            const data = await CoinService.getTopCoins()
-            res.json(data)
+            const page = parseInt(req.query.page || '1', 10)
+            const limit = parseInt(req.query.limit || '20', 10)
+            const data = await CoinService.getTopCoins(page, limit)
+            res.json(data.data)
         } catch (error) {
             handleServerError(res, error, 'getTopCoins')
         }

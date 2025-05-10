@@ -32,7 +32,7 @@ class MailController {
         <style>
           body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: #2a2539;
             margin: 0;
             padding: 0;
           }
@@ -47,7 +47,7 @@ class MailController {
           }
           .header {
             text-align: center;
-            background-color: #4CAF50;
+            background-color: #2a2539;
             color: white;
             padding: 10px 0;
             border-radius: 8px 8px 0 0;
@@ -88,7 +88,7 @@ class MailController {
             margin-top: 30px;
           }
           .footer a {
-            color: #4CAF50;
+            color: #2a2539;
             text-decoration: none;
           }
         </style>

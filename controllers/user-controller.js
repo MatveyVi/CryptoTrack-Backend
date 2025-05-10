@@ -109,7 +109,7 @@ class UserController {
 
             user.isActivated = true;
             await user.save()
-            res.redirect(process.env.CLIENT_URL + '/login')
+            res.redirect(process.env.CLIENT_URL + '/auth')
 
         } catch (error) {
             handleServerError(res, error, 'activate')

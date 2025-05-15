@@ -11,12 +11,12 @@ const freshnessByInterval = {
   '1y': 2 * 24 * 60 * 60 * 1000,
 };
 
-const daysToInterval = {
-  1: '1d',
-  7: '7d',
-  30: '30d',
-  90: '90d',
-  365: '1y',
+const daysToNum = {
+  '1d': 1,
+  '7d': 7,
+  '30d': 30,
+  '90d': 90,
+  '1y': 365,
 };
 
 const mapCoinData = (coin) => ({
@@ -220,14 +220,16 @@ class CoinDbService {
         const isFresh = (Date.now() - token.updatedAt.getTime()) < freshnessLimit;
         if (isFresh) {
           console.log('Chart from DB');
+          console.log(daysToNum[days])
           return token;
         }
       }
 
+
       const response = await axios.get(`${constants.COINGECKO_BASEURL}/coins/${id}/market_chart`, {
         params: {
           vs_currency: 'usd',
-          days,
+          days: daysToNum[days],
         },
       });
 

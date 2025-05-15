@@ -23,7 +23,9 @@ class CoinGecko {
     }
     async getCoinChart(req, res) {
         const { id } = req.params
-        const { days } = req.query
+        const days = req.query.interval
+        console.log(days)
+        
         try {
             const data = await CoinService.getCoinChart(id, days)
             res.send(data)

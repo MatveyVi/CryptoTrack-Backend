@@ -20,7 +20,7 @@ class CoinService {
             throw error
         }
     }
-    async getCoinChart(id, days = '1') {
+    async getCoinChart(id, days) {
         try {
             return await CoinDbService.getCoinChart(id, days)
         } catch (error) {
@@ -45,7 +45,7 @@ setInterval(async () => {
     } catch (error) {
         console.error('Ошибка при обновлении top монет', error.message)
     }
-}, 20 * 1000) // once in 20 sec
+}, 2* 60 * 1000) // once in 2 mins (bcs of 429 api code)
 
 setInterval(async () => {
     try {

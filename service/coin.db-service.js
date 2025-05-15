@@ -93,7 +93,7 @@ class CoinDbService {
   async getCoinById(id) {
     try {
       let token = await CoinModel.findOne({ id });
-      const timeFresh = 20 * 1000;
+      const timeFresh = 5 * 60 * 1000;
 
       if (token && token.updatedAt) {
         const isFresh = (Date.now() - token.updatedAt.getTime()) < timeFresh;
@@ -212,11 +212,11 @@ class CoinDbService {
 
   async getCoinChart(id, days) {
     try {
-      const interval = daysToInterval[days];
-      const token = await ChartModel.findOne({ coinId: id, interval });
+      //const interval = daysToInterval[days];
+      const token = await ChartModel.findOne({ coinId: id, interval: days });
 
       if (token && token.updatedAt) {
-        const freshnessLimit = freshnessByInterval[interval];
+        const freshnessLimit = freshnessByInterval[days];
         const isFresh = (Date.now() - token.updatedAt.getTime()) < freshnessLimit;
         if (isFresh) {
           console.log('Chart from DB');
@@ -233,7 +233,7 @@ class CoinDbService {
 
       const chartData = {
         coinId: id,
-        interval,
+        interval: days,
         prices: response.data.prices,
         market_caps: response.data.market_caps,
         total_volumes: response.data.total_volumes,
@@ -241,7 +241,7 @@ class CoinDbService {
       };
 
       await ChartModel.findOneAndUpdate(
-        { coinId: id, interval },
+        { coinId: id, interval: days },
         { $set: chartData },
         { upsert: true }
       );

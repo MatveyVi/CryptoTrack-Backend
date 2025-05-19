@@ -212,7 +212,6 @@ class CoinDbService {
 
   async getCoinChart(id, days) {
     try {
-      //const interval = daysToInterval[days];
       const token = await ChartModel.findOne({ coinId: id, interval: days });
 
       if (token && token.updatedAt) {

@@ -45,7 +45,7 @@ setInterval(async () => {
     } catch (error) {
         console.error('Ошибка при обновлении top монет', error.message)
     }
-}, 2* 60 * 1000) // once in 2 mins (bcs of 429 api code)
+}, 3 * 60 * 1000) // once in 3 mins (bcs of 429 api code)
 
 setInterval(async () => {
     try {

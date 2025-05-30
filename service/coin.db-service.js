@@ -143,64 +143,47 @@ class CoinDbService {
 
   async updateTrending() {
     try {
-      await CoinModel.deleteMany({ tags: { $size: 1, $all: ['trending'] } });
-
-      const response = await axios.get(`${constants.COINGECKO_BASEURL}/search/trending`);
-      const rawCoins = response.data.coins.map((c) => c.item);
-
-      const coinDetails = await Promise.all(
-        rawCoins.map(async (coin) => {
-          const data = await axios.get(`${constants.COINGECKO_BASEURL}/coins/${coin.id}`, {
+        await CoinModel.deleteMany({
+            tags: { $size: 1, $all: ['trending'] }
+          })
+        const response = await axios.get(`${constants.COINGECKO_BASEURL}/search/trending`, {
             params: {
-              localization: false,
-              tickers: false,
-              market_data: true,
-              community_data: false,
-              developer_data: false,
-              sparkline: false,
-            },
-          });
-          const c = data.data;
-
-          return {
-            ...mapCoinData({
-              id: c.id,
-              symbol: c.symbol,
-              name: c.name,
-              image: c.image.large,
-              current_price: c.market_data.current_price.usd,
-              market_cap: c.market_data.market_cap.usd,
-              market_cap_rank: c.market_cap_rank,
-              total_volume: c.market_data.total_volume.usd,
-              price_change_percentage_24h: c.market_data.price_change_percentage_24h,
-              high_24h: c.market_data.high_24h.usd,
-              low_24h: c.market_data.low_24h.usd,
-              circulating_supply: c.market_data.circulating_supply,
-              max_supply: c.market_data.max_supply,
-              last_updated: c.market_data.last_updated || new Date(),
-            }),
-          };
+                vs_currency: 'usd',
+                order: 'market_cap_desc',
+                per_page: 15,
+                page: 1
+            }
         })
-      );
+        const rawCoins = response.data.coins
+        const coins = rawCoins.map(c => c.item) // из-за отличий структуры получаемых данных в отличае от updatePopular
 
-      const operations = coinDetails.map((coin) => ({
-        updateOne: {
-          filter: { id: coin.id },
-          update: {
-            $set: coin,
-            $addToSet: { tags: 'trending' },
-          },
-          upsert: true,
-        },
-      }));
+        const operations = coins.map((coin) => ({
+            updateOne: {
+                filter: { id: coin.id },
+                update: {
+                    $set: {
+                        symbol: coin.symbol,
+                        name: coin.name,
+                        image: coin.image,
+                        current_price: coin.current_price,
+                        market_cap: coin.market_cap,
+                        market_cap_rank: coin.market_cap_rank,
+                        total_volume: coin.total_volume,
+                        price_change_percentage_24h: coin.price_change_percentage_24h,
+                        last_updated: new Date(),
+                    }, 
+                    $addToSet: { tags: 'trending' }
+                },
+                upsert: true
+            }
+        }))
 
-      await CoinModel.bulkWrite(operations);
-      console.log('Trending обновлены');
+        await CoinModel.bulkWrite(operations)
+        console.log('Trending обновлены')
     } catch (error) {
-      throw error;
+        throw error
     }
-  }
-
+}
   async getTrending() {
     try {
       const trending = await CoinModel.find({ tags: 'trending' }).sort({ market_cap_rank: 1 });

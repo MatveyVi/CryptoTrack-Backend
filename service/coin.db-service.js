@@ -93,7 +93,10 @@ class CoinDbService {
   async getCoinById(id) {
     try {
       let token = await CoinModel.findOne({ id });
-      const timeFresh = 5 * 60 * 1000;
+      let timeFresh = 5 * 60 * 1000;
+      if (!token.current_price) {
+        timeFresh = 0
+      }
 
       if (token && token.updatedAt) {
         const isFresh = (Date.now() - token.updatedAt.getTime()) < timeFresh;
@@ -162,15 +165,20 @@ class CoinDbService {
                 filter: { id: coin.id },
                 update: {
                     $set: {
-                        symbol: coin.symbol,
-                        name: coin.name,
-                        image: coin.image,
-                        current_price: coin.current_price,
-                        market_cap: coin.market_cap,
-                        market_cap_rank: coin.market_cap_rank,
-                        total_volume: coin.total_volume,
-                        price_change_percentage_24h: coin.price_change_percentage_24h,
-                        last_updated: new Date(),
+                      id: coin.id,
+                      symbol: coin.symbol,
+                      name: coin.name,
+                      image: coin.image,
+                      current_price: coin.current_price,
+                      market_cap: coin.market_cap,
+                      market_cap_rank: coin.market_cap_rank,
+                      total_volume: coin.total_volume,
+                      price_change_percentage_24h: coin.price_change_percentage_24h,
+                      high_24h: coin.high_24h,
+                      low_24h: coin.low_24h,
+                      circulating_supply: coin.circulating_supply,
+                      max_supply: coin.max_supply,
+                      last_updated: coin.last_updated || new Date(),
                     }, 
                     $addToSet: { tags: 'trending' }
                 },

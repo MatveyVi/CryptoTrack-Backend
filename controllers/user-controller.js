@@ -150,8 +150,25 @@ class UserController {
             handleServerError(res, error, 'updateUser')
         }
     }
-    async getData(req, res) {
-        const data = await CoinGecko.get(res)
+    async addToWatchlist(req, res) {
+        const { coin } = req.params
+
+        const user = await UserModel.findOneAndUpdate({ _id: req.user.id }, 
+            {$addToSet: {favoriteCoins: coin}}, 
+            {new: true}
+        )
+        const userDto = new UserDto(user)
+        res.send(userDto)
+    }
+    async deleteFromWatchlist(req, res) {
+        const { coin } = req.params
+
+        const user = await UserModel.findOneAndUpdate({ _id: req.user.id }, 
+            {$pull: {favoriteCoins: coin}}, 
+            {new: true}
+        )
+        const userDto = new UserDto(user)
+        res.send(userDto)
     }
 }
 module.exports = new UserController()

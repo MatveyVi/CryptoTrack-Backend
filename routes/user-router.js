@@ -13,6 +13,8 @@ router.put('/users/:id', authCheck, UserController.updateUser)
 router.get('/users/:id', authCheck, UserController.getUserById)
 router.get('/activate/:link', UserController.activate)
 router.get('/current', authCheck, UserController.current)
+router.patch('/watchlist/delete/:coin', authCheck, UserController.deleteFromWatchlist)
+router.patch('/watchlist/add/:coin', authCheck, UserController.addToWatchlist)
 //router.post('/logout', UserController.)
 
 

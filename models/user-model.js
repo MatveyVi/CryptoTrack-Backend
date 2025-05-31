@@ -11,6 +11,7 @@ const UserSchema = new Schema({
     location: { type: String },
     followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     following: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    favoriteCoins: [{type: String}]
 }, { timestamps: true })
 
 module.exports = model('User', UserSchema)

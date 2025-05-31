@@ -8,6 +8,7 @@ module.exports = class UserDto {
     location;
     followers;
     following;
+    favoriteCoins;
 
     constructor(model) {
         this.name = model.name;
@@ -19,5 +20,6 @@ module.exports = class UserDto {
         this.location = model.location;
         this.followers = model.followers;
         this.following = model.following;
+        this.favoriteCoins = model.favoriteCoins;
     }
 }
